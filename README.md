@@ -7,3 +7,6 @@ Much of the documentation for this is self explanatory, and explained in the com
 We link to the arXiv paper which corresponds with this code. https://arxiv.org/abs/2104.01990
 
 See our repository Recursive_Tetration, which has similar code for Matlab. This is less desired though.
+
+The code Abel_L.gp was coded by myself, James David Nixon.
+The code for Graphing.gp was coded by Mike3; and the author takes no credit for this program.
