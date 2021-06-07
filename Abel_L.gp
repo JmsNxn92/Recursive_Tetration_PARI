@@ -1,4 +1,4 @@
-
+/*James David Nixon's Recursive Tetration Program*/
 
 /*Set series precision to 100 terms*/
 \ps 100
