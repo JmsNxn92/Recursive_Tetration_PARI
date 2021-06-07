@@ -138,7 +138,7 @@ This function will produce 100 terms of the Taylor series about a point A. The v
 
 TAYLOR_SERIES(A,n) = {
 	my(ser = vector(100,i,0));
-	my(out = Tet(A+v,n,v));
+	my(out = Sexp(A+v,n,v));
 	for(i=1,100, ser[i] = polcoef(out,i-1,v));
 	return(ser);
 }
