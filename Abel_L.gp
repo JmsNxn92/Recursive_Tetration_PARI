@@ -9,19 +9,25 @@
 
 /*
 This function constructs the approximate Abel function
+
 The variable z is the main variable we care about; this grows like tetration, so expect overflow errors for large arguments.
-The variable l is the multiplier of the approximate Abel function
+
+The variable l is the multiplier of the approximate Abel function; 
+the variable z is periodic with 2 Pi * I /l; 
+so for large imaginary arguments l is chaotic.
+
 the variable n is the depth of iteration required
+n should be set to 100 or higher for better precision, but produces fairly good accuracy for about n=15 
 
 The variable v is a marker as to whether you want to grab taylor series or not.
 For instance, writing beta_function(Pi+z,1,100,z), will grab the taylor series with respect to z about the point Pi.
 If left blank, then the function will run pointwise as t_COMPLEX, and grabbing taylor series will produce an error.
 
-n should be set to 100 or higher for better precision, but produces fairly good accuracy for about n=15 
-The functional equation this satisfies is exp(beta_function(z,l,n))/(1+exp(-l*z)) = beta_function(z+1,l,n); and this program approaches the solution for n to infinity
+The functional equation this function satisfies is exp(beta_function(z,l,n))/(1+exp(-l*z)) = beta_function(z+1,l,n); and this program approaches the solution for n to infinity
 
 ****Added an additional if statement to avoid overflow errors.
 ****It catches whether exp(out) will over flow.
+****The value 1E6 can be set smaller or larger for greater or less precision and faster or slower times. Do not set above 1E7!
 */
 
 beta_function(z,l,n,{v=0}) =
@@ -88,6 +94,10 @@ For instance, writing Abl(Pi+z,1,100,z), will grab the taylor series with respec
 If left blank, then the function will run pointwise as t_COMPLEX, and grabbing taylor series will produce an error.
 
 The functional equation this satisfies is exp(Abl(z,l,n)) = Abl(z+1,l,n); and this function approaches that solution for n,k to infinity
+
+These functions are holomorphic on almost cylinders in z; and have a period of 2*Pi*I/l.
+They also have many singularities and branch cuts which pop up in unruly spaces.
+But where the function is holomorphic everything is stable.
 */
 
 Abl(z,l,n,{v=0}) = {
@@ -124,3 +134,24 @@ Tet(z,n, {v=0}) ={
 		)
 	);
 }
+
+/*
+This function will produce 50 terms of the Taylor series about a point A. The value n is the depth of iteration inherited from beta.
+*/
+
+TAYLOR_SERIES(A,n) = {
+	my(ser = vector(100,i,0));
+	my(out = Tet(A+v,n,v));
+	for(i=1,100, ser[i] = polcoef(out,i-1,v));
+	return(ser);
+}
+
+/*
+This sums the first 50 terms of the Taylor series about A. 
+The variable C is an array of Taylor coefficients; these can be grabbed with TAYLOR_SERIES.
+*/
+
+SUM_TAYLOR(z,A,C) = {
+	sum(j=1,100, C[j]*(z-A)^(j-1));
+}
+
