@@ -1,4 +1,5 @@
 
+
 /*Set series precision to 100 terms*/
 \ps 100
 
@@ -28,18 +29,24 @@ beta_function(z,l,n,{v=0}) =
 	my(out = 0);
 	if(v==0,
 		for(i=0,n-1,
-			if(abs(out)<= 1E6, 
+			if(abs(out)<= 1E4, 
 				out = exp(out)/(exp(l*(n-i-z)) +1),
-				return(out);
-			)
+				if(abs(out) <= 1E8,
+					return(exp(out)/(exp(l*(n-i-z)) +1)),
+					return(out);
+				);
+			);
 		);
 		out,
 		Ser(out,v);
 		for(i=0,n-1,
-			if(abs(polcoef(out,0,v))<= 1E6, 
+			if(abs(polcoef(out,0,v))<= 1E4, 
 				out = exp(out)/(exp(l*(n-i-z)) +1),
-				return(out);
-			)
+				if(abs(polcoef(out,0,v)) <= 1E8,
+					return(exp(out)/(exp(l*(n-i-z)) +1)),
+					return(out);
+				);
+			);
 		);
 		out;
 	);
@@ -64,11 +71,11 @@ Making 1E6 larger produces better accuracy (about 1E8 is the limit); too large a
 
 tau(z,l,n, {v=0})={
 	if(v==0,
-		if(real(beta_function(z,l,n)) <= 1E6, 
+		if(real(beta_function(z,l,n)) <= 1E8, 
 			log(1 + tau(z+1,l,n)/beta_function(z+1,l,n)) - log(1+exp(-l*z)),
 			-log(1+exp(-l*z))
 		),
-		if(real(polcoef(beta_function(z,l,n,v),0,v)) <= 1E6,
+		if(real(polcoef(beta_function(z,l,n,v),0,v)) <= 1E8,
 			log(1 + tau(z+1,l,n,v)/beta_function(z+1,l,n,v)) - log(1+exp(-l*z)),
 			-log(1+exp(-l*z))
 		)
@@ -90,11 +97,11 @@ The functional equation this satisfies is exp(Abl(z,l,n)) = Abl(z+1,l,n); and th
 
 Abl(z,l,n,{v=0}) = {
 	if(v==0,
-		if(real(beta_function(z,l,n)) <= 1E6, 
+		if(real(beta_function(z,l,n)) <= 1E8, 
 			beta_function(z,l,n) + tau(z,l,n),
 			exp(Abl(z-1,l,n))
 		),
-		if(real(polcoef(beta_function(z,l,n,v),0,v)) <= 1E6,
+		if(real(polcoef(beta_function(z,l,n,v),0,v)) <= 1E8,
 			beta_function(z,l,n,v) + tau(z,l,n,v),
 			exp(Abl(z-1,l,n,v))
 		)
@@ -137,9 +144,23 @@ This is the normalized tetration function; which we call the super-exponential.
 */
 
 Sexp(z,n,{v=0}) = {
-	Tet(z+1.969637739698065306544624079350257708852542229771084623924562193889980567396859073585886113019833431,n,v);
+	if(v==0,
+		if(real(z) <= 0.5,
+			if(real(z) < -0.5, 
+				log(Sexp(z+1,n,v)),
+				Tet(z+1.969637739698065306544624079350257708852542229771084623924562193889980567396859073585886113019833431,n,v)
+			),
+			exp(Sexp(z-1,n,v))
+		),
+		if(real(polcoef(z,0,v)) <= 0.5,
+			if(real(polcoef(z,0,v)) < -0.5, 
+				log(Sexp(z+1,n,v)),
+				Tet(z+1.969637739698065306544624079350257708852542229771084623924562193889980567396859073585886113019833431,n,v)
+			),
+			exp(Sexp(z-1,n,v))
+		)
+	);	
 }
-
 
 /*
 This function will produce 50 terms of the Taylor series about a point A. The value n is the depth of iteration inherited from beta.
@@ -162,14 +183,15 @@ SUM_TAYLOR(z,A,C) = {
 }
 
 /*
-This function will evaluate the Taylor series if real(z) <= 1.5; and other wise will iterate the exponential. You can play with this if you want.
+This function will evaluate the Taylor series if real(z) <= 0.5; and other wise will iterate the exponential. You can play with this if you want.
 This produces Tetration. It requires an array of coefficients, and the point they're centered about.
 WARNING: Don't forget about the radius of convergence when using this.
 */
 
 Sexp_T(z,A,C) = {
 	if(real(z) <= 0.5, 
-		SUM_TAYLOR(z,A,C), 
+		SUM_TAYLOR(z,0,C), 
 		exp(Sexp_T(z-1,A,C))
 	);
 }
+
