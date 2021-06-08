@@ -137,8 +137,15 @@ This is the normalized tetration function; which we call the super-exponential.
 */
 
 Sexp(z,n,{v=0}) = {
-	Tet(z+1.969637739698065306544624079350257708852542229771084623924562193889980567396859073585886113019833431,n,v);
+	if(real(z) <= 1,
+		if(real(z) < 0, 
+			log(Sexp(z+1,n,v)),
+			Tet(z+1.969637739698065306544624079350257708852542229771084623924562193889980567396859073585886113019833431,n,v)
+		),
+		exp(Sexp(z-1,n,v))
+	);
 }
+
 
 /*
 This function will produce 50 terms of the Taylor series about a point A. The value n is the depth of iteration inherited from beta.
