@@ -30,7 +30,7 @@ beta_function(z,l,n,{v=0}) =
 		for(i=0,n-1,
 			if(abs(out)<= 1E6, 
 				out = exp(out)/(exp(l*(n-i-z)) +1),
-				return(exp(out)/(exp(l*(n-i-z)) +1));
+				return(out);
 			)
 		);
 		out,
@@ -38,7 +38,7 @@ beta_function(z,l,n,{v=0}) =
 		for(i=0,n-1,
 			if(abs(polcoef(out,0,v))<= 1E6, 
 				out = exp(out)/(exp(l*(n-i-z)) +1),
-				return(exp(out)/(exp(l*(n-i-z)) +1));
+				return(out);
 			)
 		);
 		out;
