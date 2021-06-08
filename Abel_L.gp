@@ -121,18 +121,13 @@ This means, to get the value of say Tet(1+0.8*I,100); it is better to get Tet(1+
 
 Tet(z,n, {v=0}) ={
 	if(v==0,
-		if(real(z) <= 6,
-			if(real(beta(z,n)) <= 1E6,
-				log(Tet(z+1,n)),
-				beta(z,n)
-			),
-			exp(Tet(z-1,n))
+		if(real(beta(z,n)) <= 1E6,
+			log(Tet(z+1,n)),
+			beta(z,n)
 		),
-		if(real(z) <=6,
-			if(real(polcoef(beta(z,n,v),0,v)) <= 1E6,
-				log(Tet(z+1,n,v)),
-				beta(z,n,v)
-			)
+		if(real(polcoef(beta(z,n,v),0,v)) <= 1E6,
+			log(Tet(z+1,n,v)),
+			beta(z,n,v)
 		)
 	);
 }
