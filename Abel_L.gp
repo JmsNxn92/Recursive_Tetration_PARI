@@ -42,9 +42,9 @@ beta_function(z,l,n,{v=0}) =
 			)
 		);
 		out;
-	)
-	
+	);
 }
+
 
 
 /*
@@ -89,7 +89,16 @@ The functional equation this satisfies is exp(Abl(z,l,n)) = Abl(z+1,l,n); and th
 */
 
 Abl(z,l,n,{v=0}) = {
-	beta_function(z,l,n,v) + tau(z,l,n,v)
+	if(v==0,
+		if(real(beta_function(z,l,n)) <= 1E6, 
+			beta_function(z,l,n) + tau(z,l,n),
+			exp(Abl(z-1,l,n))
+		),
+		if(real(polcoef(beta_function(z,l,n,v),0,v)) <= 1E6,
+			beta_function(z,l,n,v) + tau(z,l,n,v),
+			exp(Abl(z-1,l,n,v))
+		)
+	);
 }
 
 /*
@@ -112,19 +121,24 @@ This means, to get the value of say Tet(1+0.8*I,100); it is better to get Tet(1+
 
 Tet(z,n, {v=0}) ={
 	if(v==0,
-		if(real(beta(z,n)) <= 1E6,
-			log(Tet(z+1,n)),
-			beta(z,n)
+		if(real(z) <= 6,
+			if(real(beta(z,n)) <= 1E6,
+				log(Tet(z+1,n)),
+				beta(z,n)
+			),
+			exp(Tet(z-1,n))
 		),
-		if(real(polcoef(beta(z,n,v),0,v)) <= 1E6,
-			log(Tet(z+1,n,v)),
-			beta(z,n,v)
+		if(real(z) <=6,
+			if(real(polcoef(beta(z,n,v),0,v)) <= 1E6,
+				log(Tet(z+1,n,v)),
+				beta(z,n,v)
+			)
 		)
 	);
 }
 
 /*
-This is the normalized tetration function; which we call the super-exponential. The normalization constant is accurate enough for high-precision.
+This is the normalized tetration function; which we call the super-exponential.
 */
 
 Sexp(z,n,{v=0}) = {
@@ -132,7 +146,7 @@ Sexp(z,n,{v=0}) = {
 }
 
 /*
-This function will produce 100 terms of the Taylor series about a point A. The value n is the depth of iteration inherited from beta.
+This function will produce 50 terms of the Taylor series about a point A. The value n is the depth of iteration inherited from beta.
 */
 
 TAYLOR_SERIES(A,n) = {
@@ -143,7 +157,7 @@ TAYLOR_SERIES(A,n) = {
 }
 
 /*
-This sums the first 100 terms of the Taylor series about A. 
+This sums the first 50 terms of the Taylor series about A. 
 The variable C is an array of Taylor coefficients; these can be grabbed with TAYLOR_SERIES.
 */
 
@@ -151,3 +165,15 @@ SUM_TAYLOR(z,A,C) = {
 	sum(j=1,100, C[j]*(z-A)^(j-1));
 }
 
+/*
+This function will evaluate the Taylor series if real(z) <= 1.5; and other wise will iterate the exponential. You can play with this if you want.
+This produces Tetration. It requires an array of coefficients, and the point they're centered about.
+WARNING: Don't forget about the radius of convergence when using this.
+*/
+
+Sexp_T(z,A,C) = {
+	if(real(z) <= 0.5, 
+		SUM_TAYLOR(z,A,C), 
+		exp(Sexp_T(z-1,A,C))
+	);
+}
