@@ -1,5 +1,4 @@
 
-
 /*Set series precision to 100 terms*/
 \ps 100
 
@@ -137,18 +136,46 @@ beta(z,n,{v=0}) = {
 
 /*
 This function acts similarly to tau; but it is constructed with respect to the new asymptotic solution.
-I have written this function using tail-recursion, because it works much better for avoiding errors
-We can test the function much better if we know the previous value.
+
+I have used the function log_safe rather than log; to catch errors of when we dip too close to zero in the iteration.
+This equates to when tau_B = - beta + small_error  which only happens really in the iteration, less so at the final result. I'm unsure why it does this.
+
+The parameters in the test <=1E100 and <=8 are to make sure we don't overflow when we call beta. 
+beta is only necessarily accurate for these paramaters; otherwise we open ourselves up to a flat line error.
+*/
+
+log_safe(z) = {
+	if(abs(z) <= 1E-100000000,
+		log(1E-100000000),
+		log(z)
+	);
+}
+
+
+/* the good log_safe, I haven't made this perfect yet.
+log_safe(z) = {
+	if(abs(z) <= 1E-100000000,
+		my(q=abs(z));
+		my(count =0);
+		while(q <= 1E-100000000,
+			count++;
+			q = 10*q;
+		);
+		log(1E-100000000)*10^(count),
+		log(z);
+	);
+
+}
 */
 
 tau_B(z,n,{v=0}) = {
 	if(v==0,
-		if((real(beta(z,n)) <= 1E100)&& (real(z) <=15), 
-			log(1 + tau_B(z+1,n)/beta(z+1,n)) +beta_function(z,1/sqrt(2+z),n)- beta(z,n)-log(1+exp(-z/sqrt(2+z))),
+		if((real(beta(z,n)) <= 1E100)&& (real(z) <=8), 
+			log_safe(1 + tau_B(z+1,n)/beta(z+1,n)) +beta_function(z,1/sqrt(2+z),n)- beta(z,n)-log(1+exp(-z/sqrt(2+z))),
 			0
 		),
 		if((real(polcoef(beta(z,n,v),0,v)) <= 1E100) &&(real(polcoef(z,0,v)) <=15),
-			log(1 + tau_B(z+1,n,v)/beta(z+1,n,v)) +beta_function(z,1/sqrt(2+z),n,v)- beta(z,n,v)-log(1+exp(-z/sqrt(2+z))),
+			log_safe(1 + tau_B(z+1,n,v)/beta(z+1,n,v)) +beta_function(z,1/sqrt(2+z),n,v)- beta(z,n,v)-log(1+exp(-z/sqrt(2+z))),
 			0
 		)
 	);
@@ -164,7 +191,8 @@ Tet_B(z,n,{v=0}) =
 }
 
 /*
-This is the normalized tetration function. The normalization constant is found by 2 - polrootsreal(Pol(Tet_B(1+v,100,v),v))
+This is the normalized tetration function. 
+The normalization constant is found by 2 - polrootsreal(Pol(Tet_B(1+v,100,v),v))
 */
 
 sexp(z,n,{v=0}) =
@@ -174,7 +202,7 @@ sexp(z,n,{v=0}) =
 
 /*
 This produces a similar function to tau_B, but it's defined off the Abel function. 
-This function is guessing the error of the actual tetration we want.
+This function is guessing the error of the same tetration; but executes different code.
 */
 
 tau_Abl(z,n,{v=0}) = {
@@ -215,7 +243,7 @@ sexp_Abl(z,n,{v=0}) = {
 }
 
 
-
+/*************************************************************************************/
 
 /*
 This function will produce 100 terms of the Taylor series about a point A. The value n is the depth of iteration inherited from beta.
