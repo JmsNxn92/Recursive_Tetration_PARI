@@ -144,38 +144,29 @@ The parameters in the test <=1E100 and <=8 are to make sure we don't overflow wh
 beta is only necessarily accurate for these paramaters; otherwise we open ourselves up to a flat line error.
 */
 
-log_safe(z) = {
-	if(abs(z) <= 1E-100000000,
-		log(1E-100000000),
-		log(z)
-	);
-}
-
-
-/* the good log_safe, I haven't made this perfect yet.
-log_safe(z) = {
-	if(abs(z) <= 1E-100000000,
-		my(q=abs(z));
-		my(count =0);
-		while(q <= 1E-100000000,
-			count++;
-			q = 10*q;
+log_safe(z,{v=0}) = {
+	if(v==0,
+		if(abs(z) <= 1E-10000000,
+			log(1E-10000000),
+			log(z)
+		),
+		if(abs(polcoef(z,0,v)) <= 1E-10000000,
+			log(1E-10000000),
+			log(z)
 		);
-		log(1E-100000000)*10^(count),
-		log(z);
 	);
-
 }
-*/
+
+
 
 tau_B(z,n,{v=0}) = {
 	if(v==0,
-		if((real(beta(z,n)) <= 1E100)&& (real(z) <=8), 
+		if((real(beta(z,n)) <= 1E50)&& (real(z) <=20), 
 			log_safe(1 + tau_B(z+1,n)/beta(z+1,n)) +beta_function(z,1/sqrt(2+z),n)- beta(z,n)-log(1+exp(-z/sqrt(2+z))),
 			0
 		),
-		if((real(polcoef(beta(z,n,v),0,v)) <= 1E100) &&(real(polcoef(z,0,v)) <=15),
-			log_safe(1 + tau_B(z+1,n,v)/beta(z+1,n,v)) +beta_function(z,1/sqrt(2+z),n,v)- beta(z,n,v)-log(1+exp(-z/sqrt(2+z))),
+		if((real(polcoef(beta(z,n,v),0,v)) <= 1E50) &&(real(polcoef(z,0,v)) <=20),
+			log_safe(1 + tau_B(z+1,n,v)/beta(z+1,n,v),v) +beta_function(z,1/sqrt(2+z),n,v)- beta(z,n,v)-log(1+exp(-z/sqrt(2+z))),
 			0
 		)
 	);
@@ -195,7 +186,7 @@ This is the normalized tetration function.
 The normalization constant is found by 2 - polrootsreal(Pol(Tet_B(1+v,100,v),v))
 */
 
-sexp(z,n,{v=0}) =
+sexp(z,{v=0},{n=100}) =
 {
 	Tet_B(z+1.975055755684131009317363653179973725420301320301153615046531831010730376234679136573077233845701568,n,v);
 }
